@@ -6,6 +6,8 @@ from cellpose import models
 import tifffile
 import pandas as pd
 import cv2
+import os
+
 
 def open_image(path):
 
@@ -37,6 +39,33 @@ def threshold_marker(cyx_image, marker_channel):
 
     return ret #return threshold value based on utso labeling method 
 
+def count_positive(mask, marker_img, thresh):
+    
+    # Iterate through each segmented cell and analyze marker expression
+    cell_ids = np.unique(mask)
+    positive_cells = 0
+    tot_num_cell = len(np.unique(mask)) - 1 # exclude background ID
+
+    for cell_id in cell_ids:
+        if cell_id == 0:  # skip background
+            continue
+
+        cell_mask = (mask == cell_id)
+
+        cell_marker_intensity = marker_img[cell_mask > 0]
+        if np.mean(cell_marker_intensity) > thresh:
+            positive_cells += 1
+    
+    return positive_cells
+
+def document_data(total,positive,hole_diameter):
+    file_name = 'micropattern_analysis.csv'
+    file_exists = os.path.isfile(file_name)
+    with open(file_name, "a") as file:
+        if not file_exists:
+            file.write("total,positive,hole_diameter\n")
+        file.write(f"{total}, {positive}, {hole_diameter}\n")
+
 def main():
 
     start_time = time.time()
@@ -49,18 +78,21 @@ def main():
     model = models.Cellpose(gpu=False, model_type='cyto')
 
     mask = segregat_image(model, image_array, 1, 0)
-    print(len(np.unique(mask)))
-    
-    # thresh = threshold_marker(image_array,2)
-    # print(thresh)
+    total = len(np.unique(mask))
+
+    thresh = threshold_marker(image_array,2)
+    print(thresh)
+
+    positive = count_positive(mask,image_array[2,:,:],thresh)
+    print(positive)
+
+    document_data(total,positive,'200')
 
     ### end of operation for 1 image
 
     end_time = time.time()
     elapsed_time = end_time - start_time
     print(f"Total time taken: {elapsed_time:.2f} seconds")
-
-
 
 if __name__ == "__main__":
     main()
