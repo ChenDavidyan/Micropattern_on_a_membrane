@@ -38,7 +38,7 @@ python plot_data.py
 The input of the program is a directory to a folder of micropattern images in .tiff format. The images should be in the shape of [cyx] - `c` for channel, `y` for y-axis, and `x` for x-axis.
 
 ### output:
-the output of the `images_analyse.py` script is a csv file coמsis of the following data:
+the output of the `images_analyse.py` script is a csv file consis of the following data:
 
 | total  | positive | hole diameter |
 | ------ |:--------:| :------------:|
