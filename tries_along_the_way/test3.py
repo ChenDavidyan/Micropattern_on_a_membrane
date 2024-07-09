@@ -6,9 +6,9 @@ import pandas as pd
 import cv2
 
 images_directory = sys.argv[1]
-cyto_channel = sys.argv[2]
-nuclei_channel = sys.argv[3]
-marker_channel = sys.argv[4]
+cyto_idx = sys.argv[2]
+nuclei_idx = sys.argv[3]
+marker_idx = sys.argv[4]
 hole_diameter = sys.argv[5]
 
 def convert_to_8bit(cyx_image): #works with xy, need to make sure also works with cxy

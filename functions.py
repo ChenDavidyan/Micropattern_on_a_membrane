@@ -66,33 +66,52 @@ def document_data(total,positive,hole_diameter):
             file.write("total,positive,hole_diameter\n")
         file.write(f"{total}, {positive}, {hole_diameter}\n")
 
+def analyse_files_in_dir(directory_path, model,cyto_idx,nuclei_idx,marker_idx,hole_diameter):
+
+    i=1
+    for filename in os.listdir(directory_path):
+            
+            file_path = os.path.join(directory_path, filename)
+
+            ### start the operation for 1 image
+
+            start_time = time.time()
+
+            image_array = open_image(file_path)
+
+            mask = segregat_image(model, image_array, cyto_idx,nuclei_idx)
+
+            total = len(np.unique(mask))
+
+            thresh = threshold_marker(image_array,marker_idx)
+
+            positive = count_positive(mask,image_array[marker_idx,:,:],thresh)
+
+            document_data(total,positive,hole_diameter)
+
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+
+            print(f'operation {i} out of {len(os.listdir(directory_path))} is done! duration: {elapsed_time:.2f} seconds' )
+
+            i+=1
+
+
 def main():
 
-    start_time = time.time()
+    if len(sys.argv) != 6:
+        print("Usage: python images_analyse.py DIRECTORY CYTO NUCLEI MARKER DIAMETER")
+        sys.exit(1)
 
-    ### start the operation for 1 image 
+    images_directory = sys.argv[1]
+    cyto_idx = int(sys.argv[2])
+    nuclei_idx = int(sys.argv[3])
+    marker_idx = int(sys.argv[4])
+    hole_diameter = int(sys.argv[5])
 
-    image_array = open_image(r'r1_002.nd2 (series 06).tif')
-
-    # Initialize the Cellpose model
     model = models.Cellpose(gpu=False, model_type='cyto')
 
-    mask = segregat_image(model, image_array, 1, 0)
-    total = len(np.unique(mask))
-
-    thresh = threshold_marker(image_array,2)
-    print(thresh)
-
-    positive = count_positive(mask,image_array[2,:,:],thresh)
-    print(positive)
-
-    document_data(total,positive,'200')
-
-    ### end of operation for 1 image
-
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    print(f"Total time taken: {elapsed_time:.2f} seconds")
+    analyse_files_in_dir(images_directory, model,cyto_idx,nuclei_idx,marker_idx,hole_diameter)
 
 if __name__ == "__main__":
     main()
