@@ -1,13 +1,10 @@
-# import sys
 import time
 import numpy as np
 from skimage import exposure, img_as_ubyte
-# from cellpose import models
 import tifffile
 import pandas as pd
 import cv2
 import os
-
 
 def open_image(path):
 
@@ -39,7 +36,7 @@ def threshold_marker(cyx_image, marker_channel):
 
     return ret #return threshold value based on utso labeling method 
 
-def count_positive(mask, marker_img, thresh):
+def count_positive(mask, marker_img, thresh = 20):
     
     # Iterate through each segmented cell and analyze marker expression
     cell_ids = np.unique(mask)
@@ -58,13 +55,13 @@ def count_positive(mask, marker_img, thresh):
     
     return positive_cells
 
-def document_data(total,positive,hole_diameter):
+def document_data(total,positive,hole_diameter,file_path):
     file_name = 'micropattern_analysis.csv'
     file_exists = os.path.isfile(file_name)
     with open(file_name, "a") as file:
         if not file_exists:
             file.write("total,positive,hole_diameter\n")
-        file.write(f"{total}, {positive}, {hole_diameter}\n")
+        file.write(f"{total}, {positive}, {hole_diameter}, {file_path}\n")
 
 def analyse_files_in_dir(directory_path, model,cyto_idx,nuclei_idx,marker_idx,hole_diameter):
 
@@ -85,9 +82,10 @@ def analyse_files_in_dir(directory_path, model,cyto_idx,nuclei_idx,marker_idx,ho
 
             thresh = threshold_marker(image_array,marker_idx)
 
-            positive = count_positive(mask,image_array[marker_idx,:,:],thresh)
+            # positive = count_positive(mask,image_array[marker_idx,:,:],thresh)
+            positive = count_positive(mask,image_array[marker_idx,:,:])
 
-            document_data(total,positive,hole_diameter)
+            document_data(total,positive,hole_diameter, file_path)
 
             end_time = time.time()
             elapsed_time = end_time - start_time
@@ -95,23 +93,3 @@ def analyse_files_in_dir(directory_path, model,cyto_idx,nuclei_idx,marker_idx,ho
             print(f'operation {i} out of {len(os.listdir(directory_path))} is done! duration: {elapsed_time:.2f} seconds' )
 
             i+=1
-
-
-# def main():
-
-#     if len(sys.argv) != 6:
-#         print("Usage: python images_analyse.py DIRECTORY CYTO NUCLEI MARKER DIAMETER")
-#         sys.exit(1)
-
-#     images_directory = sys.argv[1]
-#     cyto_idx = int(sys.argv[2])
-#     nuclei_idx = int(sys.argv[3])
-#     marker_idx = int(sys.argv[4])
-#     hole_diameter = int(sys.argv[5])
-
-#     model = models.Cellpose(gpu=False, model_type='cyto')
-
-#     analyse_files_in_dir(images_directory, model,cyto_idx,nuclei_idx,marker_idx,hole_diameter)
-
-# if __name__ == "__main__":
-#     main()
