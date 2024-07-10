@@ -69,7 +69,7 @@ Generates `micropattern_analysis.csv` with columns:
 
 | total  | positive | hole_diameter | file_path |
 | ------ |:--------:| :------------:| :--------:|
-| total number of cells | number of positive cells to the marker | diameter of the microhole |
+| total number of cells | number of positive cells to the marker | diameter of the microhole |path to the analysed image|
 
 * total: Total number of cells.
 * positive: Number of positive cells to the marker.
