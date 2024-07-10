@@ -2,8 +2,7 @@ import time
 import numpy as np
 from skimage import exposure, img_as_ubyte
 import tifffile
-import pandas as pd
-import cv2
+# import cv2
 import os
 
 def open_image(path):
@@ -12,23 +11,23 @@ def open_image(path):
     # Read the image data into a numpy array
         image_array = tif.asarray()
     
-    #convert image format to 8bit because cv2 lib workes better with 8bit
+    #convert image format to 8bit for faster operation
     image_array = img_as_ubyte(exposure.rescale_intensity(image_array))
         
     return image_array
 
-def segregat_image(model, cyx_image, cyto_channel, nuclei_channel): 
+def segregate_image(model, nuclei_img,): 
 
     # Perform cell segmentation on the DAPI image
     # masks, flows, styles, diams = model.eval(cyx_image, diameter=30, channels=[cyto_channel,nuclei_channel])
-    masks, flows, styles, diams = model.eval(cyx_image, diameter=30, channels=[nuclei_channel])
+    masks, flows, styles, diams = model.eval(nuclei_img, diameter=None, channels=[0,0])
 
     # Convert the masks to a format we can use for analysis
     masks = np.array(masks)
 
     return masks
 
-def threshold_marker(cyx_image, marker_channel):
+# def threshold_marker(cyx_image, marker_channel):
 
     yx_marker_img = cyx_image[marker_channel,:,:]
     
@@ -37,7 +36,7 @@ def threshold_marker(cyx_image, marker_channel):
 
     return ret #return threshold value based on utso labeling method 
 
-def count_positive(mask, marker_img, thresh = 15):
+def count_positive(mask, marker_img, thresh = 15): #thresh = 15 works best based on analysis of background intensity in NC samples
     
     # Iterate through each segmented cell and analyze marker expression
     cell_ids = np.unique(mask)
@@ -64,7 +63,7 @@ def document_data(total,positive,hole_diameter,file_path):
             file.write("total,positive,hole_diameter,file_path\n")
         file.write(f"{total}, {positive}, {hole_diameter}, {file_path}\n")
 
-def analyse_files_in_dir(directory_path, model,cyto_idx,nuclei_idx,marker_idx,hole_diameter):
+def analyse_files_in_dir(directory_path, model,nuclei_idx,marker_idx,hole_diameter):
 
     i=1
     for filename in os.listdir(directory_path):
@@ -77,11 +76,11 @@ def analyse_files_in_dir(directory_path, model,cyto_idx,nuclei_idx,marker_idx,ho
 
             image_array = open_image(file_path)
 
-            mask = segregat_image(model, image_array, cyto_idx,nuclei_idx)
+            mask = segregate_image(model, image_array[nuclei_idx,:,:])
 
             total = len(np.unique(mask))
 
-            thresh = threshold_marker(image_array,marker_idx)
+            # thresh = threshold_marker(image_array,marker_idx)
 
             # positive = count_positive(mask,image_array[marker_idx,:,:],thresh)
             positive = count_positive(mask,image_array[marker_idx,:,:])

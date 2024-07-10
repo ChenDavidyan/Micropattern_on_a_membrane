@@ -1,8 +1,9 @@
-sys
 numpy
-skimage
-cv2
-cellpose
+scikit-image
+tifffile
 pandas
+opencv-python
+seaborn
+cellpose
 matplotlib
 
