@@ -60,6 +60,7 @@ def document_data(total, positive, hole_diameter, file_path, file_name="micropat
 
 def analyse_files_in_dir(directory_path, model, nuclei_idx, marker_idx, hole_diameter):
     i = 1
+    print('Operation has started, it will take about 70-120 seconds for each image. Please be patient')
     for filename in os.listdir(directory_path):
         file_path = os.path.join(directory_path, filename)
 
