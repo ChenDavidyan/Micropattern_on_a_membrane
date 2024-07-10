@@ -20,7 +20,8 @@ def open_image(path):
 def segregat_image(model, cyx_image, cyto_channel, nuclei_channel): 
 
     # Perform cell segmentation on the DAPI image
-    masks, flows, styles, diams = model.eval(cyx_image, diameter=30, channels=[cyto_channel,nuclei_channel])
+    # masks, flows, styles, diams = model.eval(cyx_image, diameter=30, channels=[cyto_channel,nuclei_channel])
+    masks, flows, styles, diams = model.eval(cyx_image, diameter=30, channels=[nuclei_channel])
 
     # Convert the masks to a format we can use for analysis
     masks = np.array(masks)
@@ -36,7 +37,7 @@ def threshold_marker(cyx_image, marker_channel):
 
     return ret #return threshold value based on utso labeling method 
 
-def count_positive(mask, marker_img, thresh = 20):
+def count_positive(mask, marker_img, thresh = 15):
     
     # Iterate through each segmented cell and analyze marker expression
     cell_ids = np.unique(mask)
@@ -60,7 +61,7 @@ def document_data(total,positive,hole_diameter,file_path):
     file_exists = os.path.isfile(file_name)
     with open(file_name, "a") as file:
         if not file_exists:
-            file.write("total,positive,hole_diameter\n")
+            file.write("total,positive,hole_diameter,file_path\n")
         file.write(f"{total}, {positive}, {hole_diameter}, {file_path}\n")
 
 def analyse_files_in_dir(directory_path, model,cyto_idx,nuclei_idx,marker_idx,hole_diameter):

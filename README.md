@@ -40,8 +40,8 @@ The input of the program is a directory to a folder of micropattern images in .t
 ### output:
 the output of the `images_analyse.py` script is a csv file consis of the following data:
 
-| total  | positive | hole diameter |
-| ------ |:--------:| :------------:|
+| total  | positive | hole_diameter | file_path |
+| ------ |:--------:| :------------:| :--------:|
 | total number of cells | number of positive cells to the marker | diameter of the microhole |
 
 * `total` - total number of cells

@@ -14,7 +14,7 @@ def main():
     marker_idx = int(sys.argv[4])
     hole_diameter = int(sys.argv[5])
 
-    model = models.Cellpose(gpu=False, model_type='cyto')
+    model = models.Cellpose(gpu=False, model_type='nuclei')
 
     image_analysis_lib.analyse_files_in_dir(images_directory, model,cyto_idx,nuclei_idx,marker_idx,hole_diameter)
 
